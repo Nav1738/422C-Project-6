@@ -9,9 +9,6 @@
  */
 package assignment6;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.*;
 
 public class Flight {
@@ -20,7 +17,6 @@ public class Flight {
      */
     private int printDelay; // 50 ms. Use it to fix the delay time between prints.
     private SalesLogs log;
-	Set<Seat> allocatedSeats;
 	String flightNo;
 	int firstNumRows;
 	int businessNumRows;
@@ -29,8 +25,7 @@ public class Flight {
     public Flight(String flightNo, int firstNumRows, int businessNumRows, int economyNumRows) {
     	this.printDelay = 50;// 50 ms. Use it to fix the delay time between
     	this.log = new SalesLogs();
-        // TODO: Implement the rest of this constructor
-		this.allocatedSeats = new HashSet<Seat>();
+		
 		this.flightNo = flightNo;
 		this.firstNumRows = firstNumRows;
 		this.businessNumRows = businessNumRows;
@@ -55,42 +50,42 @@ public class Flight {
 
 		switch(seatClass){
 
-			case "FIRST":
-				SeatLetter[] possibleFirstChars = {0, 1, 4, 5}; //A, B, E , F
+			case FIRST:
+				SeatLetter[] possibleFirstChars = {SeatLetter.A, SeatLetter.B, SeatLetter.E, SeatLetter.F}; //A, B, E , F
 				for (int row = 0; row < firstNumRows; row++) { //iterate through all first class rows
 					for(SeatLetter curr : possibleFirstChars){ //iterate through every possible seat in the first class row
 						Seat curSeat = new Seat(seatClass, row+1, curr);
-						if(!(allocatedSeats.contains(curSeat))){
+						if(!(log.getSeatLog().contains(curSeat))){
 							allocatedSeats.add(curSeat);
 							return curSeat;
 						}
 					}
 				}
 				//at this point, all first seats are full and we need to search the business class
-				return getNextAvailableSeat("BUSINESS");
+				return getNextAvailableSeat(SeatClass.BUSINESS);
 				break;
 
-			case "BUSINESS":
-				SeatLetter[] possibleBizChars = {0, 1, 2, 3, 4, 5}; // A, B, C, D, E, F
+			case BUSINESS:
+				SeatLetter[] possibleBizChars = {SeatLetter.A, SeatLetter.B, SeatLetter.C, SeatLetter.D, SeatLetter.E, SeatLetter.F}; // A, B, C, D, E, F
 				for (int row = 0; row < businessNumRows; row++) { //iterate through all business class rows
 					for(SeatLetter curr : possibleBizChars){ //iterate through every possible seat in the business class row
 						Seat curSeat = new Seat(seatClass, row+1, curr);
-						if(!(allocatedSeats.contains(curSeat))){
+						if(!(log.getSeatLog().contains(curSeat))){
 							allocatedSeats.add(curSeat);
 							return curSeat;
 						}
 					}
 				}
 				//at this point, all business seats are full and we need to search the economy class
-				return getNextAvailableSeat("ECONOMY");
+				return getNextAvailableSeat(SeatClass.ECONOMY);
 				break;
 
-			case "ECONOMY":
-				SeatLetter[] possibleEconChars = {0, 1, 2, 3, 4, 5}; //A, B, C, D, E, F
+			case ECONOMY:
+				SeatLetter[] possibleEconChars = {SeatLetter.A, SeatLetter.B, SeatLetter.C, SeatLetter.D, SeatLetter.E, SeatLetter.F}; //A, B, C, D, E, F
 				for (int row = 0; row < economyNumRows; row++) { //iterate through all economy class rows
 					for(SeatLetter curr : possibleEconChars){ //iterate through every possible seat in the economy class row
 						Seat curSeat = new Seat(seatClass, row+1, curr);
-						if(!(allocatedSeats.contains(curSeat))){
+						if(!(log.getSeatLog().contains(curSeat))){
 							allocatedSeats.add(curSeat);
 							return curSeat;
 						}
@@ -113,8 +108,21 @@ public class Flight {
      * @return a flight ticket or null if a ticket office failed to reserve the seat
      */
 	public Ticket printTicket(String officeId, Seat seat, int customer) {
-        // TODO: Implement this method
-        return null;
+
+		if(seat == null){
+			return null;
+		}
+		Ticket thisTicket = new Ticket(flightNo, officeId, seat, customer);
+		log.getTicketLog().add(thisTicket);
+		
+		try{
+			Thread.sleep(printDelay);
+		}
+		catch(Exception e){}
+		
+		System.out.println(thisTicket);
+		return thisTicket;
+        
     }
 
 	/**
@@ -123,8 +131,8 @@ public class Flight {
      * @return list of seats sold
      */
     public List<Seat> getSeatLog() {
-        // TODO: Implement this method
-        return null;
+
+        return log.getSeatLog();
     }
 
     /**
@@ -133,8 +141,8 @@ public class Flight {
      * @return list of tickets sold
      */
     public List<Ticket> getTransactionLog() {
-        // TODO: Implement this method
-        return null;
+
+		return log.getTicketLog();
     }
     
     static enum SeatClass {
