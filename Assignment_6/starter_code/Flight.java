@@ -10,7 +10,9 @@
 package assignment6;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.*;
 
 public class Flight {
     /**
@@ -18,11 +20,21 @@ public class Flight {
      */
     private int printDelay; // 50 ms. Use it to fix the delay time between prints.
     private SalesLogs log;
+	Set<Seat> allocatedSeats;
+	String flightNo;
+	int firstNumRows;
+	int businessNumRows;
+	int economyNumRows;
 
     public Flight(String flightNo, int firstNumRows, int businessNumRows, int economyNumRows) {
     	this.printDelay = 50;// 50 ms. Use it to fix the delay time between
     	this.log = new SalesLogs();
         // TODO: Implement the rest of this constructor
+		this.allocatedSeats = new HashSet<Seat>();
+		this.flightNo = flightNo;
+		this.firstNumRows = firstNumRows;
+		this.businessNumRows = businessNumRows;
+		this.economyNumRows = economyNumRows;
     }
     
     public void setPrintDelay(int printDelay) {
@@ -40,8 +52,58 @@ public class Flight {
      * @return the next available seat or null if flight is full
      */
 	public Seat getNextAvailableSeat(SeatClass seatClass) {
-		// TODO: Implement this method
-        return null;
+
+		switch(seatClass){
+
+			case "FIRST":
+				SeatLetter[] possibleFirstChars = {0, 1, 4, 5}; //A, B, E , F
+				for (int row = 0; row < firstNumRows; row++) { //iterate through all first class rows
+					for(Integer curr : possibleFirstChars){ //iterate through every possible seat in the first class row
+						Seat curSeat = new Seat(seatClass, row+1, curr);
+						if(!(allocatedSeats.contains(curSeat))){
+							allocatedSeats.add(curSeat);
+							return curSeat;
+						}
+					}
+				}
+				//at this point, all first seats are full and we need to search the business class
+				return getNextAvailableSeat("BUSINESS");
+				break;
+
+			case "BUSINESS":
+				SeatLetter[] possibleBizChars = {0, 1, 2, 3, 4, 5}; // A, B, C, D, E, F
+				for (int row = 0; row < businessNumRows; row++) { //iterate through all business class rows
+					for(Integer curr : possibleBizChars){ //iterate through every possible seat in the business class row
+						Seat curSeat = new Seat(seatClass, row+1, curr);
+						if(!(allocatedSeats.contains(curSeat))){
+							allocatedSeats.add(curSeat);
+							return curSeat;
+						}
+					}
+				}
+				//at this point, all business seats are full and we need to search the economy class
+				return getNextAvailableSeat("ECONOMY");
+				break;
+
+			case "ECONOMY":
+				SeatLetter[] possibleEconChars = {0, 1, 2, 3, 4, 5}; //A, B, C, D, E, F
+				for (int row = 0; row < economyNumRows; row++) { //iterate through all economy class rows
+					for(Integer curr : possibleEconChars){ //iterate through every possible seat in the economy class row
+						Seat curSeat = new Seat(seatClass, row+1, curr);
+						if(!(allocatedSeats.contains(curSeat))){
+							allocatedSeats.add(curSeat);
+							return curSeat;
+						}
+					}
+				}
+				//at this point, all economy seats are full and we can return null since the flight is full/can't downgrade anymore
+				return null;
+				break;
+				
+			default:
+				return null;
+		}
+        
 	}
 
 	/**
