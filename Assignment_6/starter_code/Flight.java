@@ -58,7 +58,7 @@ public class Flight {
 			case "FIRST":
 				SeatLetter[] possibleFirstChars = {0, 1, 4, 5}; //A, B, E , F
 				for (int row = 0; row < firstNumRows; row++) { //iterate through all first class rows
-					for(Integer curr : possibleFirstChars){ //iterate through every possible seat in the first class row
+					for(SeatLetter curr : possibleFirstChars){ //iterate through every possible seat in the first class row
 						Seat curSeat = new Seat(seatClass, row+1, curr);
 						if(!(allocatedSeats.contains(curSeat))){
 							allocatedSeats.add(curSeat);
@@ -73,7 +73,7 @@ public class Flight {
 			case "BUSINESS":
 				SeatLetter[] possibleBizChars = {0, 1, 2, 3, 4, 5}; // A, B, C, D, E, F
 				for (int row = 0; row < businessNumRows; row++) { //iterate through all business class rows
-					for(Integer curr : possibleBizChars){ //iterate through every possible seat in the business class row
+					for(SeatLetter curr : possibleBizChars){ //iterate through every possible seat in the business class row
 						Seat curSeat = new Seat(seatClass, row+1, curr);
 						if(!(allocatedSeats.contains(curSeat))){
 							allocatedSeats.add(curSeat);
@@ -88,7 +88,7 @@ public class Flight {
 			case "ECONOMY":
 				SeatLetter[] possibleEconChars = {0, 1, 2, 3, 4, 5}; //A, B, C, D, E, F
 				for (int row = 0; row < economyNumRows; row++) { //iterate through all economy class rows
-					for(Integer curr : possibleEconChars){ //iterate through every possible seat in the economy class row
+					for(SeatLetter curr : possibleEconChars){ //iterate through every possible seat in the economy class row
 						Seat curSeat = new Seat(seatClass, row+1, curr);
 						if(!(allocatedSeats.contains(curSeat))){
 							allocatedSeats.add(curSeat);
@@ -99,7 +99,7 @@ public class Flight {
 				//at this point, all economy seats are full and we can return null since the flight is full/can't downgrade anymore
 				return null;
 				break;
-				
+
 			default:
 				return null;
 		}
