@@ -17,10 +17,11 @@ public class Flight {
      */
     private int printDelay; // 50 ms. Use it to fix the delay time between prints.
     private SalesLogs log;
-	String flightNo;
-	int firstNumRows;
-	int businessNumRows;
-	int economyNumRows;
+	private String flightNo;
+	private int firstNumRows;
+	private int businessNumRows;
+	private int economyNumRows;
+
 
     public Flight(String flightNo, int firstNumRows, int businessNumRows, int economyNumRows) {
     	this.printDelay = 50;// 50 ms. Use it to fix the delay time between
@@ -55,45 +56,45 @@ public class Flight {
 				for (int row = 0; row < firstNumRows; row++) { //iterate through all first class rows
 					for(SeatLetter curr : possibleFirstChars){ //iterate through every possible seat in the first class row
 						Seat curSeat = new Seat(seatClass, row+1, curr);
-						if(!(log.getSeatLog().contains(curSeat))){
-							allocatedSeats.add(curSeat);
+						if(!(checkDups(curSeat))){
+							log.addSeat(curSeat);
 							return curSeat;
 						}
 					}
 				}
 				//at this point, all first seats are full and we need to search the business class
 				return getNextAvailableSeat(SeatClass.BUSINESS);
-				break;
+				//break;
 
 			case BUSINESS:
 				SeatLetter[] possibleBizChars = {SeatLetter.A, SeatLetter.B, SeatLetter.C, SeatLetter.D, SeatLetter.E, SeatLetter.F}; // A, B, C, D, E, F
-				for (int row = 0; row < businessNumRows; row++) { //iterate through all business class rows
+				for (int row = firstNumRows; row < row + businessNumRows ; row++) { //iterate through all business class rows
 					for(SeatLetter curr : possibleBizChars){ //iterate through every possible seat in the business class row
 						Seat curSeat = new Seat(seatClass, row+1, curr);
-						if(!(log.getSeatLog().contains(curSeat))){
-							allocatedSeats.add(curSeat);
+						if(!(checkDups(curSeat))){
+							log.addSeat(curSeat);
 							return curSeat;
 						}
 					}
 				}
 				//at this point, all business seats are full and we need to search the economy class
 				return getNextAvailableSeat(SeatClass.ECONOMY);
-				break;
+				//break;
 
 			case ECONOMY:
 				SeatLetter[] possibleEconChars = {SeatLetter.A, SeatLetter.B, SeatLetter.C, SeatLetter.D, SeatLetter.E, SeatLetter.F}; //A, B, C, D, E, F
-				for (int row = 0; row < economyNumRows; row++) { //iterate through all economy class rows
+				for (int row = (firstNumRows + businessNumRows); row < row + economyNumRows; row++) { //iterate through all economy class rows
 					for(SeatLetter curr : possibleEconChars){ //iterate through every possible seat in the economy class row
 						Seat curSeat = new Seat(seatClass, row+1, curr);
-						if(!(log.getSeatLog().contains(curSeat))){
-							allocatedSeats.add(curSeat);
+						if(!(checkDups(curSeat))){
+							log.addSeat(curSeat);
 							return curSeat;
 						}
 					}
 				}
 				//at this point, all economy seats are full and we can return null since the flight is full/can't downgrade anymore
 				return null;
-				break;
+				//break;
 
 			default:
 				return null;
@@ -113,7 +114,7 @@ public class Flight {
 			return null;
 		}
 		Ticket thisTicket = new Ticket(flightNo, officeId, seat, customer);
-		log.getTicketLog().add(thisTicket);
+		log.addTicket(thisTicket);
 		
 		try{
 			Thread.sleep(printDelay);
@@ -150,8 +151,18 @@ public class Flight {
 
 		private Integer intValue;
 
+		private int custId;
+
 		private SeatClass(final Integer intValue) {
 			this.intValue = intValue;
+		}
+
+		public void setCustId(int id){
+			this.custId = id;
+		}
+
+		public int getCustID() {
+			return custId;
 		}
 
 		public Integer getIntValue() {
@@ -292,6 +303,24 @@ public class Flight {
 			return result;
 		}
 	}
+	
+	private Boolean checkDups(Seat curSeat){
+		ArrayList<Seat> remove = new ArrayList<Seat>();
+		ArrayList<Seat> logClone = log.getSeatLog();
+		for(Seat seat: log.getSeatLog()){
+			if((seat.getSeatClass() != curSeat.getSeatClass()) || (seat.getRow() != curSeat.getRow())){
+				remove.add(seat);
+			}
+		}
+		logClone.removeAll(remove);
+
+		for(Seat seat: logClone){
+			if(seat.getLetter() == curSeat.getLetter()){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * SalesLogs are security wrappers around an ArrayList of Seats and one of Tickets
@@ -325,5 +354,7 @@ public class Flight {
 		public void addTicket(Ticket t) {
 			ticketLog.add(t);
 		}
+
 	}
+
 }
