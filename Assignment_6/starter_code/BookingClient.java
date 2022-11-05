@@ -42,14 +42,7 @@ public class BookingClient {
      */
     public List<Thread> simulate() {
         List<Thread> threads = new ArrayList<Thread>();
-        int custId = 1;
-        for(String office : offices.keySet()){
-            
-            for(SeatClass curr: offices.get(office)){
-                curr.setCustId(custId);
-                custId++;
-            }
-        }
+        
         for(String office: offices.keySet()){
             OfficeThreading current = new OfficeThreading(office, offices.get(office), flight);
             Thread curThread = new Thread(current);
@@ -62,7 +55,7 @@ public class BookingClient {
     }
 
     public static void main(String[] args) {
-        // TODO: Initialize test data to description
+        
         Flight testFlight = new Flight("TR123", 1, 1, 1);
         Map<String, SeatClass[]> testMap = new HashMap<String, SeatClass[]>();
         testMap.put("TO1", new SeatClass[] {SeatClass.BUSINESS, SeatClass.BUSINESS, SeatClass.BUSINESS});
@@ -92,11 +85,18 @@ class OfficeThreading implements Runnable {
     @Override
     public void run(){
         for (int i = 0; i < customers.length; i++) {
-            synchronized(lock){
-                 
-                flight.printTicket(office, flight.getNextAvailableSeat(customers[i]), customers[i].getCustID());
+            
+                if(!flight.isFull()){
+                    synchronized(lock){
+                        flight.printTicket(office, flight.getNextAvailableSeat(customers[i]), flight.getCustNum());
+                    }
+                }
+                else{
+                    synchronized(lock){
+                        System.out.println("Sorry, we are sold out!");
+                    }
+                }
                 
-            }
         }
     }
 }

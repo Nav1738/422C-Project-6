@@ -21,6 +21,8 @@ public class Flight {
 	private int firstNumRows;
 	private int businessNumRows;
 	private int economyNumRows;
+	private int custNum;
+	private Boolean isFull;
 
 
     public Flight(String flightNo, int firstNumRows, int businessNumRows, int economyNumRows) {
@@ -31,6 +33,8 @@ public class Flight {
 		this.firstNumRows = firstNumRows;
 		this.businessNumRows = businessNumRows;
 		this.economyNumRows = economyNumRows;
+		this.custNum = 1;
+		this.isFull = false;
     }
     
     public void setPrintDelay(int printDelay) {
@@ -40,6 +44,15 @@ public class Flight {
     public int getPrintDelay() {
         return printDelay;
     }
+
+	public int getCustNum(){
+		return custNum++;
+	}
+
+	public Boolean isFull(){
+		return isFull;
+	}
+
 
     /**
      * Returns the next available seat not yet reserved for a given class
@@ -53,9 +66,9 @@ public class Flight {
 
 			case FIRST:
 				SeatLetter[] possibleFirstChars = {SeatLetter.A, SeatLetter.B, SeatLetter.E, SeatLetter.F}; //A, B, E , F
-				for (int row = 0; row < firstNumRows; row++) { //iterate through all first class rows
+				for (int row = 1; row <= firstNumRows; row++) { //iterate through all first class rows
 					for(SeatLetter curr : possibleFirstChars){ //iterate through every possible seat in the first class row
-						Seat curSeat = new Seat(seatClass, row+1, curr);
+						Seat curSeat = new Seat(seatClass, row, curr);
 						if(!(checkDups(curSeat))){
 							log.addSeat(curSeat);
 							return curSeat;
@@ -68,9 +81,9 @@ public class Flight {
 
 			case BUSINESS:
 				SeatLetter[] possibleBizChars = {SeatLetter.A, SeatLetter.B, SeatLetter.C, SeatLetter.D, SeatLetter.E, SeatLetter.F}; // A, B, C, D, E, F
-				for (int row = firstNumRows; row < row + businessNumRows ; row++) { //iterate through all business class rows
+				for (int row = firstNumRows+1; row <= firstNumRows + businessNumRows ; row++) { //iterate through all business class rows
 					for(SeatLetter curr : possibleBizChars){ //iterate through every possible seat in the business class row
-						Seat curSeat = new Seat(seatClass, row+1, curr);
+						Seat curSeat = new Seat(seatClass, row, curr);
 						if(!(checkDups(curSeat))){
 							log.addSeat(curSeat);
 							return curSeat;
@@ -83,9 +96,9 @@ public class Flight {
 
 			case ECONOMY:
 				SeatLetter[] possibleEconChars = {SeatLetter.A, SeatLetter.B, SeatLetter.C, SeatLetter.D, SeatLetter.E, SeatLetter.F}; //A, B, C, D, E, F
-				for (int row = (firstNumRows + businessNumRows); row < row + economyNumRows; row++) { //iterate through all economy class rows
+				for (int row = (firstNumRows + businessNumRows)+1; row <= (firstNumRows + businessNumRows) + economyNumRows; row++) { //iterate through all economy class rows
 					for(SeatLetter curr : possibleEconChars){ //iterate through every possible seat in the economy class row
-						Seat curSeat = new Seat(seatClass, row+1, curr);
+						Seat curSeat = new Seat(seatClass, row, curr);
 						if(!(checkDups(curSeat))){
 							log.addSeat(curSeat);
 							return curSeat;
@@ -93,6 +106,7 @@ public class Flight {
 					}
 				}
 				//at this point, all economy seats are full and we can return null since the flight is full/can't downgrade anymore
+				isFull = true;
 				return null;
 				//break;
 
@@ -151,19 +165,11 @@ public class Flight {
 
 		private Integer intValue;
 
-		private int custId;
 
 		private SeatClass(final Integer intValue) {
 			this.intValue = intValue;
 		}
 
-		public void setCustId(int id){
-			this.custId = id;
-		}
-
-		public int getCustID() {
-			return custId;
-		}
 
 		public Integer getIntValue() {
 			return intValue;
