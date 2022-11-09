@@ -30,11 +30,11 @@ public class Flight {
     	this.log = new SalesLogs();
 		
 		this.flightNo = flightNo;
-		this.firstNumRows = firstNumRows;
-		this.businessNumRows = businessNumRows;
-		this.economyNumRows = economyNumRows;
-		this.custNum = 1;
-		this.isFull = false;
+		this.firstNumRows = firstNumRows; //number of rows in first class
+		this.businessNumRows = businessNumRows; //number of rows in business class
+		this.economyNumRows = economyNumRows; //number of rows in economy class
+		this.custNum = 0; // the customer id for each custimer
+		this.isFull = false; // flag to check if the flight is full
     }
     
     public void setPrintDelay(int printDelay) {
@@ -46,11 +46,11 @@ public class Flight {
     }
 
 	public int getCustNum(){
-		return custNum++;
+		return ++custNum; // getter for the customer id
 	}
 
 	public Boolean isFull(){
-		return isFull;
+		return isFull; // getter for the flight's isFull status
 	}
 
 
@@ -61,6 +61,10 @@ public class Flight {
      * @return the next available seat or null if flight is full
      */
 	public Seat getNextAvailableSeat(SeatClass seatClass) {
+
+		if(isFull){
+			return null;
+		}
 
 		switch(seatClass){
 
@@ -108,7 +112,6 @@ public class Flight {
 				//at this point, all economy seats are full and we can return null since the flight is full/can't downgrade anymore
 				isFull = true;
 				return null;
-				//break;
 
 			default:
 				return null;
@@ -309,7 +312,11 @@ public class Flight {
 			return result;
 		}
 	}
-	
+	/**
+	 * Checks whether or not a seat already exists inside the seat log
+	 * @param curSeat
+	 * @return true if a seat exists in the seat log
+	  */
 	private Boolean checkDups(Seat curSeat){
 		ArrayList<Seat> remove = new ArrayList<Seat>();
 		ArrayList<Seat> logClone = log.getSeatLog();

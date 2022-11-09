@@ -44,13 +44,14 @@ public class BookingClient {
         List<Thread> threads = new ArrayList<Thread>();
         
         for(String office: offices.keySet()){
-            OfficeThreading current = new OfficeThreading(office, offices.get(office), flight);
+            OfficeThreading current = new OfficeThreading(office, offices.get(office), flight); 
             Thread curThread = new Thread(current);
             threads.add(curThread);
         }
         for(Thread thread : threads){
             thread.start();
         }
+
         return threads;
     }
 
@@ -63,40 +64,53 @@ public class BookingClient {
         testMap.put("TO2", new SeatClass[] {SeatClass.FIRST, SeatClass.BUSINESS, SeatClass.ECONOMY, SeatClass.ECONOMY});
         testMap.put("TO5", new SeatClass[] {SeatClass.BUSINESS, SeatClass.BUSINESS, SeatClass.BUSINESS});
         testMap.put("TO4", new SeatClass[] {SeatClass.ECONOMY, SeatClass.ECONOMY, SeatClass.ECONOMY});
-
+    
         BookingClient testClient = new BookingClient(testMap, testFlight);
         testClient.simulate();
 
     }
 }
 
-class OfficeThreading implements Runnable {
+class OfficeThreading implements Runnable { // A class that implements the runnable interface and is used to run the threads
     String office;
     SeatClass[] customers;
     static Object lock = new Object();
+    static Object print = new Object();
     Flight flight;
+    static Boolean full = false;
+
 
     public OfficeThreading(String office, SeatClass[] customers, Flight flight){
         this.office = office;
         this.customers = customers;
         this.flight = flight;
         
+        
     }
     @Override
     public void run(){
         for (int i = 0; i < customers.length; i++) {
-            
-                if(!flight.isFull()){
-                    synchronized(lock){
-                        flight.printTicket(office, flight.getNextAvailableSeat(customers[i]), flight.getCustNum());
+
+            synchronized(lock){ //synchronizes all threads so that only one thread is doing work at a time
+                if(!full){ // a flag that communicates with all threads and checks whether the flight is full
+                    Flight.Seat curSeat = flight.getNextAvailableSeat(customers[i]);
+                    if(curSeat == null){ // if the next available seat is null, then the flight is full
+                        System.out.println("Sorry, we are sold out!"); //ensures that this statement is only printed once 
+                        full = true; //sets the full flag to true
                     }
-                }
+                    flight.printTicket(office, curSeat, flight.getCustNum()); //prints the ticket
+
+                } 
                 else{
-                    synchronized(lock){
-                        System.out.println("Sorry, we are sold out!");
-                    }
+
+                    return; //Once the flight is full, then return from all threads
+                
                 }
+            }
+                
                 
         }
+        
+        
     }
 }
